@@ -21,14 +21,17 @@ import com.pinyougou.sellergoods.service.SellerService;
  */
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-	// 注入service的方法供这边的service使用
+	/**
+	 *
+	 *注入service的方法供这边的service使用
+	 */
 	private SellerService sellerService;
 
 	public void setSellerService(SellerService sellerService) {
 		this.sellerService = sellerService;
 	}
 
-	/*
+	/**
 	 * (non-Javadoc) 配置方法的拦截
 	 * 
 	 * @see org.springframework.security.core.userdetails.UserDetailsService#

@@ -35,8 +35,9 @@ import entity.PageResult;
  * @author Administrator
  *
  */
+@SuppressWarnings("ALL")
 @Service
-@Transactional
+@Transactional(rollbackFor = Exception.class)
 public class GoodsServiceImpl implements GoodsService {
 	@Autowired
 	private TbItemMapper itemMapper;	
@@ -66,7 +67,7 @@ public class GoodsServiceImpl implements GoodsService {
 	@Override
 	public PageResult findPage(int pageNum, int pageSize) {
 		PageHelper.startPage(pageNum, pageSize);		
-		Page<TbGoods> page=   (Page<TbGoods>) goodsMapper.selectByExample(null);
+		Page<TbGoods> page= ( Page<TbGoods> )goodsMapper.selectByExample(null);
 		return new PageResult(page.getTotal(), page.getResult());
 	}
 
@@ -75,21 +76,32 @@ public class GoodsServiceImpl implements GoodsService {
 	 */
 	@Override
 	public void add(Goods goods) {
-		goods.getGoods().setAuditStatus("0");//状态：未审核
-		goodsMapper.insert(goods.getGoods());//插入商品基本信息
-		goods.getGoodsDesc().setGoodsId(goods.getGoods().getId());//将商品基本表的ID给商品扩展表
-		goodsDescMapper.insert(goods.getGoodsDesc());//插入商品扩展表数据
-		saveItemList(goods);//插入SKU商品数据,原有的逻辑抽取到saveItemList中
+		//状态：未审核
+		goods.getGoods().setAuditStatus("0");
+		//插入商品基本信息
+		goodsMapper.insert(goods.getGoods());
+		//将商品基本表的ID给商品扩展表
+		goods.getGoodsDesc().setGoodsId(goods.getGoods().getId());
+		//插入商品扩展表数据
+		goodsDescMapper.insert(goods.getGoodsDesc());
+		//插入SKU商品数据,原有的逻辑抽取到saveItemList中
+		saveItemList(goods);
 	}
-	//将存的部分封装起来
+	/**
+	 *将存的部分封装起来
+	 */
 	private void setItemValues(TbItem item,Goods goods){
-		//商品分类 
-		item.setCategoryid(goods.getGoods().getCategory3Id());//三级分类ID
-		item.setCreateTime(new Date());//创建日期
-		item.setUpdateTime(new Date());//更新日期 
-		
-		item.setGoodsId(goods.getGoods().getId());//商品ID
-		item.setSellerId(goods.getGoods().getSellerId());//商家ID
+		//商品分类
+		//三级分类ID
+		item.setCategoryid(goods.getGoods().getCategory3Id());
+		//创建日期
+		item.setCreateTime(new Date());
+		//更新日期
+		item.setUpdateTime(new Date());
+		//商品ID
+		item.setGoodsId(goods.getGoods().getId());
+		//商家ID
+		item.setSellerId(goods.getGoods().getSellerId());
 		
 		//分类名称			
 		TbItemCat itemCat = itemCatMapper.selectByPrimaryKey(goods.getGoods().getCategory3Id());

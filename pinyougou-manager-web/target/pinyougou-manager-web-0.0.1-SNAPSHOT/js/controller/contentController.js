@@ -1,5 +1,5 @@
  //控制层 
-app.controller('contentController' ,function($scope,$controller,contentService,uploadService){	
+app.controller('contentController' ,function($scope,$controller,contentCategoryService,contentService,uploadService){	
 	
 	$controller('baseController',{$scope:$scope});//继承
 	
@@ -77,11 +77,12 @@ app.controller('contentController' ,function($scope,$controller,contentService,u
 		);
 	}
     $scope.uploadFile = function(){
+    	alert(1);
     	uploadService.uploadFile().success(
     		function(response){
     			if(response.success){
     				// 成功后的回显
-    				$scope.entity.pic = response.messags;
+    				$scope.entity.pic = response.message;
     			}else{
     				// 后台没存进去的错误
     				alert("上传失败");
@@ -94,4 +95,12 @@ app.controller('contentController' ,function($scope,$controller,contentService,u
     	    }
     	);
     }
+    $scope.findContentCategoryList = function(){
+    	contentCategoryService.findAll().success(
+    		function(response){
+    			$scope.contentCategoryList = response;
+    		}	
+    	);
+    }
+    $scope.status = ['无效','有效'];
 });	

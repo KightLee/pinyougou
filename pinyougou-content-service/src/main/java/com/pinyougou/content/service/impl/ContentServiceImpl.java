@@ -3,6 +3,7 @@ package com.pinyougou.content.service.impl;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.RedisTemplate;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.github.pagehelper.Page;
@@ -23,10 +24,10 @@ import entity.PageResult;
  */
 @Service
 public class ContentServiceImpl implements ContentService {
-
 	@Autowired
 	private TbContentMapper contentMapper;
-
+	@Autowired
+	private RedisTemplate redisTemplate;
 	/**
 	 * 查询全部
 	 */
@@ -52,7 +53,7 @@ public class ContentServiceImpl implements ContentService {
 	public void add(TbContent content) {
 		contentMapper.insert(content);
 		// 清除缓存
-		// redisTemplate.boundHashOps("content").delete(content.getCategoryId());
+		 redisTemplate.boundHashOps("content").delete(content.getCategoryId());
 	}
 
 	/**
@@ -131,14 +132,25 @@ public class ContentServiceImpl implements ContentService {
 
 	@Override
 	public List<TbContent> findByCategoryId(Long categoryId) {
-		TbContentExample tbContentExample = new TbContentExample();
-		Criteria criteria = tbContentExample.createCriteria();
-		criteria.andCategoryIdEqualTo(categoryId);
-		// 有效的广告才能展示
-		criteria.andStatusEqualTo("1");
-		// 加上排序字段
-		tbContentExample.setOrderByClause("sort_order");
-		return contentMapper.selectByExample(tbContentExample);
+		// 从内存中获取内容 
+		List<TbContent> contentList = (List<TbContent>) redisTemplate.boundHashOps("content").get(categoryId);
+		// 判断是否有内容，第一次没内容的话去数据读取后放进来
+		// 但是这里要考虑脏读
+		if(contentList==null) {
+			System.out.println("读取内容放入缓存");
+			TbContentExample tbContentExample = new TbContentExample();
+			Criteria criteria = tbContentExample.createCriteria();
+			criteria.andCategoryIdEqualTo(categoryId);
+			// 有效的广告才能展示
+			criteria.andStatusEqualTo("1");
+			// 加上排序字段
+			tbContentExample.setOrderByClause("sort_order");
+			List<TbContent> selectByExample = contentMapper.selectByExample(tbContentExample);
+			redisTemplate.boundHashOps("content").put(categoryId, selectByExample);
+		}else {
+			System.out.println("从内存中读取数据");
+		}
+		return contentList;
 	}
 
 }

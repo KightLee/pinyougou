@@ -14,7 +14,7 @@
     <script type="text/javascript" src="plugins/angularjs/angular.min.js">  </script>
 	<script type="text/javascript" src="js/base.js">  </script>
 	<script type="text/javascript" src="js/service/contentService.js">  </script>
-	<script type="text/javascript" src="js/controller/contentController.js">  </script>
+	<script type="text/javascript" src="js/controller/contentController.js">  </script> 
     
 </head>
 
@@ -522,7 +522,7 @@
 					</div>
 				</div>
 				<div class="yui3-u Center banerArea">
-					<!--banner轮播,这里使用后台的数据进行填充,轮播-->
+					<!--banner轮播-->
 					<div id="myCarousel" data-ride="carousel" data-interval="4000" class="sui-carousel slide">
 					  <ol class="carousel-indicators">
 					    <li data-target="#myCarousel" data-slide-to="{{$index}}" class="{{$index==0?'active':''}}" ng-repeat="item in contentList[1]"></li>
@@ -531,8 +531,8 @@
 					    <div class="{{$index==0?'active':''}} item" ng-repeat="item in contentList[1]">
 					    <a href="{{item.url}}">
 					    	<img src="{{item.pic}}"  />
-					      </a>
-					    </div>					   
+					      
+					     </a>
 					     
 					    </div>
 					  </div><a href="#myCarousel" data-slide="prev" class="carousel-control left">‹</a><a href="#myCarousel" data-slide="next" class="carousel-control right">›</a>
